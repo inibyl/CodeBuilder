@@ -42,7 +42,7 @@ public class Program
             };
 
             // компилируем нашу сборочку, перед этим пропуская через наш мини-обфускатор
-            CompilerResults results = compiler.CompileAssemblyFromSource(options, ObfuscateCode(CsharpSourceCode));
+            CompilerResults results = compiler.CompileAssemblyFromSource(options, CsharpSourceCode);
             foreach (CompilerError error in results.Errors) { Console.WriteLine(error.ErrorText); }
 
 
@@ -75,88 +75,6 @@ public class Program
             // Успешно!
             Console.ReadLine();
 
-        }
-
-        // получение рандомных буковок   / by XpucT
-        static string CreateNewGuid()
-        {
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()));
-        }
-
-        // мини обфускация кода, переименование переменных и классов с записью в словарь
-        static string ObfuscateCode(string code)
-        {
-            try
-            {
-                // namespace
-                Match class_name = Regex.Match(code, @"class \S*");
-                if (class_name.Groups.Count > 0)
-                {
-                    foreach (Match match in class_name.Groups)
-                    {
-                        string name = match.ToString().Replace("class ", "").Replace("\n", "");
-                        string hash = CreateNewGuid();
-                        keyValues.Add(name, hash);
-                        code = code.Replace(name, hash);
-                    }
-                }
-            }
-            catch { }
-
-            try
-            {
-                // string_values
-                Match string_name = Regex.Match(code, @"string \S* = ");
-                if (string_name.Groups.Count > 0)
-                {
-                    foreach (Match match in string_name.Groups)
-                    {
-                        string name = match.ToString().Replace("\n", "").Replace(" = ", "").Replace("string ", "");
-                        string hash = CreateNewGuid();
-                        keyValues.Add(name, hash);
-                        code = code.Replace(name, hash);
-                    }
-                }
-            }
-            catch { }
-
-            try
-            {
-                // int_values
-                Match int_name = Regex.Match(code, @"int \S* = ");
-                if (int_name.Groups.Count > 0)
-                {
-                    foreach (Match match in int_name.Groups)
-                    {
-                        string name = match.ToString().Replace("\n", "").Replace(" = ", "").Replace("int ", "");
-                        string hash = CreateNewGuid();
-                        keyValues.Add(name, hash);
-                        code = code.Replace(name, hash);
-                    }
-                }
-            }
-            catch { }
-
-            try
-            {
-                // void_values
-                Match void_name = Regex.Match(code, @"void \S*");
-                if (void_name.Groups.Count > 0)
-                {
-                    foreach (Match match in void_name.Groups)
-                    {
-                        string name = match.ToString().Replace("\n", "").Replace("void ", "").Replace("()", "");
-                        string hash = CreateNewGuid();
-                        keyValues.Add(name, hash);
-                        code = code.Replace(name, hash);
-                    }
-                }
-            }
-            catch { }
-
-            // result
-            Console.WriteLine(code);
-            return code;
         }
 
         // классный метод очиски папки temp
